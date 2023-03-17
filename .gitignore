@@ -186,4 +186,4 @@ psd
 thumb
 sketch
 
-./backend/config/config.env
+**/backend/config/
