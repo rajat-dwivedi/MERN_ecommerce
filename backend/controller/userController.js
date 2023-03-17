@@ -31,7 +31,7 @@ exports.loginUser = catchAsyncError(async (req,res,next)=>{
     const user = await User.findOne({email}).select("+password");
 
     if(!user){
-        return next(new ErrorHandler("Invalid email or password"))
+        return next(new ErrorHandler("Invalid email or password",401))
     }
 
     const isPasswordMatched = await user.comparePassword(password);
@@ -46,6 +46,7 @@ exports.loginUser = catchAsyncError(async (req,res,next)=>{
 //logout user
 exports.logout = catchAsyncError(async(req,res,next)=>{
 
+    //this means putting the value null inside the "token" keyword
     res.cookie("token",null,{
         expires : new Date(Date.now()),
         httpOnly:true
