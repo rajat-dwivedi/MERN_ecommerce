@@ -57,3 +57,37 @@ exports.logout = catchAsyncError(async(req,res,next)=>{
         message: "logged out"
     })
 })
+
+exports.forgotPassword = catchAsyncError( async (req,res,next)=>{
+    const user = await User.findOne({email:req.body.email})
+    if(!user){
+        return next(new ErrorHandler("User not found",404));
+    }
+
+    //getting reset password token 
+    const resetToken = user.getResetPasswordToken()
+
+    await user.save({validateBeforeSave:false});
+
+    const resetPasswordUrl = `${req.protocol}://${req.get("host")}/api/v1/password/reset/${resetToken}`
+
+    const message = `Your password reset token is: ${resetPasswordUrl}`
+
+    try{
+        await sendEmail({
+            email : user.email,
+            subject : "Shopsite Password recovery",
+            message
+        })
+
+        res.status(200).json({
+            success:true,
+            mesasge : "email sent to user successfully"
+        })
+    }catch(error){
+        user.resetPasswordToken = undefined
+        user.resetPasswordExpire = undefined
+        await user.save({validateBeforeSave:false});
+        return next(new ErrorHandler(error.message,500)) 
+    }
+})
