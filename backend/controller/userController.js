@@ -158,7 +158,7 @@ exports.updatePassword = catchAsyncError(async (req,res,next)=>{
     sendToken(user, 200, res);
 })
 
-//update profile 
+//update profile --admin
 exports.updateProfile = catchAsyncError(async (req,res,next)=>{
     // const user = await User.findById(req.user.id).select("+password")
 
@@ -177,5 +177,67 @@ exports.updateProfile = catchAsyncError(async (req,res,next)=>{
     res.status(200).json({
         success : true,
         user
+    })
+})
+
+//get all users (admin)
+exports.getAllUsers = catchAsyncError(async (req,res,next)=>{
+    const users = await User.find()
+
+    res.status(200).json({
+        success : true,
+        users
+    })
+})
+
+//get one user - admin
+exports.getOneUser = catchAsyncError(async (req,res,next)=>{
+    const user = await User.findById(req.params.id)
+    if(!user){
+        return next(new ErrorHandler("Invalid user id", 400));
+    }
+
+    res.status(200).json({
+        success : true,
+        user
+    })
+})
+
+//update user role --admin
+exports.updateUserRole = catchAsyncError(async (req,res,next)=>{
+    // const user = await User.findById(req.user.id).select("+password")
+
+    const newUserData = {
+        name : req.body.name,
+        email:req.body.email,
+        role:req.body.role
+    }
+
+    //we will add avatar feature later
+    await User.findByIdAndUpdate(req.user.id,newUserData,{
+        new: true,
+        runValidators:true,
+        useFindandModify:false
+    })
+
+    res.status(200).json({
+        success : true,
+    })
+})
+
+//delete user --admin
+exports.deleteUser = catchAsyncError(async (req,res,next)=>{
+
+    //we will add avatar feature later
+    const user = await User.findById(req.params.id)
+    if(!user){
+        return next(new ErrorHandler("User with the given id does not exist"),400)
+    }
+
+    await user.deleteOne()
+
+    res.status(200).json({
+        success : true,
+        message : "user deleted successfully"
     })
 })
