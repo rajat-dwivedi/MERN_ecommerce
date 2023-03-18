@@ -140,7 +140,7 @@ exports.getAllReviews = catchAsyncError(async (req,res,next)=>{
   })
 })
 
-exports.deleteReview = catchAsyncError(async (req, res, next) => {
+exports.deleteReview = catchAsyncError (async (req, res, next) => {
   const product = await Product.findById(req.query.productId);
 
   if (!product) {
